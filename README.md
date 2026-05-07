@@ -2,7 +2,7 @@
 
 NumTan is a tangent-centered numerical toolkit implemented in Rust and exported as a Python module with PyO3. It is designed as a compact teaching-friendly numerical library: derivatives, root finding, ODE stepping, quadrature, regression, interpolation, polynomial helpers, signal utilities, and plot-ready visualization data all share one lightweight API.
 
-Current version: `0.9.0`.
+Current version: `0.9.1`.
 
 ## Features
 
@@ -21,7 +21,7 @@ Current version: `0.9.0`.
 Install from a local wheel:
 
 ```bash
-python -m pip install target/wheels/numtan-0.9.0-cp313-cp313-win_amd64.whl
+python -m pip install target/wheels/numtan-0.9.1-cp313-cp313-win_amd64.whl
 ```
 
 Build and install in editable development mode:
@@ -134,4 +134,4 @@ python tests/api_surface.py
 
 ## Project Status
 
-NumTan `0.9.0` is suitable as a preview or release-candidate package. Before a stable `1.0.0`, the recommended next steps are broader numerical edge-case testing, multi-platform CI wheel publishing, and full generated API documentation.
+NumTan `0.9.1` is suitable as a preview or release-candidate package. Before a stable `1.0.0`, the recommended next steps are broader numerical edge-case testing, multi-platform CI wheel publishing, and full generated API documentation.
