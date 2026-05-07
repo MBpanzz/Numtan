@@ -15,5 +15,5 @@ classifiers = [
 ]
 
 [tool.maturin]
-features = ["pyo3/extension-module"]
+features = ["python-extension"]
 module-name = "numtan"
