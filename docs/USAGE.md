@@ -1,6 +1,6 @@
 # NumTan Usage Guide
 
-This guide shows the main Python workflows supported by NumTan `0.9.1`.
+This guide shows the main Python workflows supported by NumTan `0.9.2`.
 
 ## Import
 

@@ -1,5 +1,5 @@
 # NumTan API 鍙傝€?
-鏈枃妗ｅ垪鍑?NumTan `0.9.1` 瀵煎嚭鐨?Python 鍏叡鍑芥暟銆?
+鏈枃妗ｅ垪鍑?NumTan `0.9.2` 瀵煎嚭鐨?Python 鍏叡鍑芥暟銆?
 ## 姹傚 API
 
 - `tangent(function, x, method="central") -> float`

@@ -1,6 +1,6 @@
 # NumTan API Reference
 
-This reference lists the public Python functions exported by NumTan `0.9.1`.
+This reference lists the public Python functions exported by NumTan `0.9.2`.
 
 ## Derivative API
 
