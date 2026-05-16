@@ -62,4 +62,5 @@ EXPECTED = {
 
 missing = sorted(name for name in EXPECTED if not hasattr(nt, name))
 assert not missing, missing
+assert nt.__version__ == "1.0.0"
 print("api surface ok")

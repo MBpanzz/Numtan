@@ -1,41 +1,59 @@
 # NumTan Usage Guide
 
-This guide shows the main Python workflows supported by NumTan `0.9.2`.
+This guide walks through the main workflows in NumTan `1.0.0`. It assumes NumTan is already installed:
 
-## Import
+```bash
+python -m pip install numtan
+```
+
+Note: NumTan was developed with AI assistance. Human maintainers review and accept the final code, documentation, and releases.
+
+Import the package:
 
 ```python
 import math
 import numtan as nt
 ```
 
+## Mental Model
+
+NumTan uses one consistent style:
+
+- Inputs are regular Python floats and lists.
+- Python callables are accepted for numerical functions.
+- Iterative algorithms return dictionaries with convergence metadata and `history`.
+- Plotting helpers return plain lists and dictionaries.
+- Invalid arguments raise `ValueError`; callback exceptions propagate unchanged.
+
 ## Derivatives
 
-Use `tangent` for a scalar derivative estimate:
+Estimate a scalar derivative:
 
 ```python
 slope = nt.tangent(lambda x: x**3, 2.0)
-print(slope)
+print(slope)  # approximately 12.0
 ```
 
-Use `gradient` for a multivariate scalar function:
+Estimate a gradient for a multivariate scalar function:
 
 ```python
 grad = nt.gradient(lambda v: v[0] ** 2 + 3.0 * v[1] ** 2, [2.0, 1.0])
-print(grad)
+print(grad)  # approximately [4.0, 6.0]
 ```
 
 ## Root Finding
 
-Root solvers return dictionaries with `root`, `converged`, `iterations`, and `history`.
+Root solvers return `root`, `converged`, `iterations`, and `history`.
 
 ```python
 result = nt.newton(lambda x: x * x - 2.0, 1.0)
+
 print(result["root"])
+print(result["converged"])
 print(result["history"][0])
 ```
 
-Halley and Householder are available for faster local convergence when the function behaves smoothly:
+Use Halley or Householder when the function is smooth and a faster local method is useful:
 
 ```python
 print(nt.halley(lambda x: x**3 - 8.0, 1.0)["root"])
@@ -44,26 +62,26 @@ print(nt.householder(lambda x: x**3 - 8.0, 1.0, 3)["root"])
 
 ## Linear Algebra
 
-Vectors are passed as Python lists. Matrices are row-major lists of lists.
+Vectors are Python lists. Matrices are row-major lists of lists.
 
 ```python
 print(nt.dot([1.0, 2.0], [3.0, 4.0]))
 print(nt.norm([3.0, 4.0]))
+print(nt.add([1.0, 2.0], [3.0, 4.0]))
 print(nt.mat_vec([[1.0, 2.0], [3.0, 4.0]], [1.0, 1.0]))
 print(nt.solve([[2.0, 1.0], [1.0, 3.0]], [1.0, 2.0]))
 ```
 
 ## Optimization
 
-Optimization functions return dictionaries with `point`, `value`, `converged`, `iterations`, and `history`.
+Optimization results contain `point`, `value`, `converged`, `iterations`, and `history`.
 
 ```python
-result = nt.gradient_descent(
+minimum = nt.gradient_descent(
     lambda v: (v[0] - 2.0) ** 2 + (v[1] + 1.0) ** 2,
     [0.0, 0.0],
-    step_size=0.01,
 )
-print(result["point"])
+print(minimum["point"])
 ```
 
 Scalar minimization and stationary-point search:
@@ -73,19 +91,20 @@ print(nt.tangent_minimize(lambda x: (x - 3.0) ** 2, 0.0)["point"])
 print(nt.stationary_newton(lambda x: (x - 4.0) ** 2, 0.0)["point"])
 ```
 
-Gauss-Newton solves nonlinear least-squares residual systems:
+Gauss-Newton works with residual vectors:
 
 ```python
-print(nt.gauss_newton(lambda v: [v[0] - 2.0, v[1] + 3.0], [0.0, 0.0])["point"])
+result = nt.gauss_newton(lambda v: [v[0] - 2.0, v[1] + 3.0], [0.0, 0.0])
+print(result["point"])
 ```
 
 ## ODE Solvers
 
-ODE solvers expect `f(t, y)` and return a list of dictionaries with `t` and `y`.
+ODE solvers accept `f(t, y)` and return a path of `{"t": ..., "y": ...}` dictionaries.
 
 ```python
 path = nt.rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.05)
-print(path[-1])
+print(path[-1]["y"])
 ```
 
 Available steppers:
@@ -99,12 +118,14 @@ nt.adaptive_rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.2)
 
 ## Integration
 
-Quadrature functions return dictionaries with `value`, `error`, and `levels`.
+Quadrature results contain `value`, `error`, and `levels`.
 
 ```python
 finite = nt.tanh_sinh(lambda x: x * x, 0.0, 1.0)
 gaussian = nt.quad_inf(lambda x: math.exp(-x * x))
-print(finite["value"], gaussian["value"])
+
+print(finite["value"])
+print(gaussian["value"])
 ```
 
 Use `tan_sinh` for semi-infinite intervals from `a` to infinity:
@@ -126,7 +147,7 @@ print(nt.complex_tan(0.5, 0.25))
 
 ## Visualization Data
 
-NumTan returns plain Python data for plotting with any library.
+NumTan does not choose a plotting library for you. It returns regular data structures that are easy to pass into Matplotlib, Plotly, or notebook widgets.
 
 ```python
 lines = nt.tangent_lines(lambda x: x * x, 0.0, 2.0, [0.5, 1.0, 1.5])
@@ -137,11 +158,15 @@ field = nt.ode_direction_field(lambda t, y: y, (0.0, 1.0), (0.0, 2.0), 8, 8)
 ## Statistics and Regression
 
 ```python
+print(nt.mean([1.0, 2.0, 3.0]))
+print(nt.variance([1.0, 2.0, 3.0]))
 print(nt.summary([1.0, 2.0, 3.0, 4.0]))
 print(nt.correlation([1.0, 2.0, 3.0], [2.0, 4.0, 6.0]))
 print(nt.linear_regression([1.0, 2.0, 3.0], [3.0, 5.0, 7.0]))
 print(nt.polynomial_regression([0.0, 1.0, 2.0], [1.0, 3.0, 7.0], 2))
 ```
+
+Correlation with a constant vector and linear regression with constant `x` values are undefined and raise `ValueError`.
 
 ## Interpolation and Grids
 
@@ -178,7 +203,16 @@ print(nt.find_peaks([0.0, 2.0, 1.0, 3.0, 0.0], 1.5))
 
 ## Error Handling
 
-Invalid arguments raise `ValueError`. Exceptions raised inside Python callbacks are propagated unchanged.
+Invalid numerical inputs raise `ValueError`:
+
+```python
+try:
+    nt.correlation([1.0, 1.0], [2.0, 3.0])
+except ValueError as exc:
+    print(exc)
+```
+
+Exceptions raised inside Python callbacks are propagated unchanged:
 
 ```python
 try:

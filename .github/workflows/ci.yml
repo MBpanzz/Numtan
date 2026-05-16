@@ -19,4 +19,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install --upgrade pip maturin
       - run: cargo test
-      - run: maturin build --release
+      - run: maturin build --release --out dist
+      - run: python -c "import glob, subprocess, sys; subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--force-reinstall', glob.glob('dist/*.whl')[0]])"
+      - run: python tests/python_smoke.py
+      - run: python tests/api_surface.py

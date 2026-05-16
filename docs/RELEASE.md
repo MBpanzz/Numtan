@@ -2,6 +2,22 @@
 
 This guide describes the local release workflow for NumTan.
 
+NumTan was developed with AI assistance. Release maintainers are responsible for reviewing generated or assisted changes before publishing.
+
+## Public Installation
+
+After a release is published, users should be able to install NumTan with:
+
+```bash
+python -m pip install numtan
+```
+
+For upgrades:
+
+```bash
+python -m pip install --upgrade numtan
+```
+
 ## Pre-release Checks
 
 Run formatting and Rust tests:
@@ -60,10 +76,24 @@ Upload to TestPyPI first:
 python -m twine upload --repository testpypi target/wheels/*
 ```
 
+Confirm TestPyPI installation:
+
+```bash
+python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ numtan
+python -c "import numtan as nt; print(nt.__version__)"
+```
+
 Upload to PyPI after confirming TestPyPI installation:
 
 ```bash
 python -m twine upload target/wheels/*
+```
+
+Confirm PyPI installation:
+
+```bash
+python -m pip install --upgrade numtan
+python -c "import numtan as nt; print(nt.__version__)"
 ```
 
 ## Release Notes Checklist

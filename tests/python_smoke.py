@@ -7,6 +7,7 @@ def near(left, right, eps=1e-6):
     assert abs(left - right) <= eps, (left, right)
 
 
+assert nt.__version__ == "1.0.0"
 near(nt.tangent(lambda x: x**3, 2.0), 12.0, 1e-5)
 gradient = nt.gradient(lambda v: v[0] ** 2 + 3 * v[1] ** 2, [2.0, 1.0])
 near(gradient[0], 4.0, 1e-5)
@@ -58,6 +59,16 @@ near(nt.summary([1.0, 2.0, 3.0])["mean"], 2.0)
 near(nt.correlation([1.0, 2.0, 3.0], [2.0, 4.0, 6.0]), 1.0)
 near(nt.linear_regression([1.0, 2.0, 3.0], [3.0, 5.0, 7.0])["slope"], 2.0)
 near(nt.polynomial_regression([0.0, 1.0, 2.0], [1.0, 3.0, 7.0], 2)[2], 1.0)
+for caller in [
+    lambda: nt.correlation([1.0, 1.0], [2.0, 3.0]),
+    lambda: nt.linear_regression([1.0, 1.0], [2.0, 3.0]),
+]:
+    try:
+        caller()
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("undefined statistical operation did not fail")
 
 assert nt.linspace(0.0, 1.0, 3) == [0.0, 0.5, 1.0]
 assert len(nt.sample_grid(lambda x: x * x, 0.0, 1.0, 3)) == 3

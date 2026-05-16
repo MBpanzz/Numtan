@@ -83,8 +83,12 @@ pub fn covariance(left: &[f64], right: &[f64], sample: bool) -> Result<f64, Stri
 
 /// Computes Pearson correlation between two vectors.
 pub fn correlation(left: &[f64], right: &[f64]) -> Result<f64, String> {
-    Ok(covariance(left, right, false)?
-        / (variance(left, false)?.sqrt() * variance(right, false)?.sqrt()))
+    let left_std = variance(left, false)?.sqrt();
+    let right_std = variance(right, false)?.sqrt();
+    if left_std <= f64::EPSILON || right_std <= f64::EPSILON {
+        return Err("correlation is undefined for constant vectors".to_string());
+    }
+    Ok(covariance(left, right, false)? / (left_std * right_std))
 }
 
 /// Fits a least-squares line to paired observations.
@@ -92,7 +96,11 @@ pub fn linear_regression(x: &[f64], y: &[f64]) -> Result<LinearRegression, Strin
     if x.len() != y.len() || x.len() < 2 {
         return Err("x and y must have the same length of at least two".to_string());
     }
-    let slope = covariance(x, y, false)? / variance(x, false)?;
+    let x_variance = variance(x, false)?;
+    if x_variance <= f64::EPSILON {
+        return Err("linear regression requires nonconstant x values".to_string());
+    }
+    let slope = covariance(x, y, false)? / x_variance;
     let intercept = mean(y)? - slope * mean(x)?;
     let y_mean = mean(y)?;
     let ss_total = y.iter().map(|value| (value - y_mean).powi(2)).sum::<f64>();
@@ -101,10 +109,19 @@ pub fn linear_regression(x: &[f64], y: &[f64]) -> Result<LinearRegression, Strin
         .zip(y)
         .map(|(x_value, y_value)| (y_value - (slope * x_value + intercept)).powi(2))
         .sum::<f64>();
+    let r2 = if ss_total <= f64::EPSILON {
+        if ss_error <= f64::EPSILON {
+            1.0
+        } else {
+            0.0
+        }
+    } else {
+        1.0 - ss_error / ss_total
+    };
     Ok(LinearRegression {
         slope,
         intercept,
-        r2: 1.0 - ss_error / ss_total,
+        r2,
     })
 }
 

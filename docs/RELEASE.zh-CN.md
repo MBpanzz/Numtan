@@ -2,6 +2,22 @@
 
 本文档描述 NumTan 的本地发布流程。
 
+NumTan 在开发过程中使用了 AI 辅助。发布维护者需要在正式发布前审查所有生成或辅助完成的改动。
+
+## 公开安装方式
+
+版本发布后，用户应能通过下面的命令安装 NumTan：
+
+```bash
+python -m pip install numtan
+```
+
+升级已有安装：
+
+```bash
+python -m pip install --upgrade numtan
+```
+
 ## 发布前检查
 
 运行格式化和 Rust 测试：
@@ -60,10 +76,24 @@ python -c "import numtan as nt; print(nt.tanpi(0.25))"
 python -m twine upload --repository testpypi target/wheels/*
 ```
 
+确认 TestPyPI 安装：
+
+```bash
+python -m pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ numtan
+python -c "import numtan as nt; print(nt.__version__)"
+```
+
 确认 TestPyPI 安装无误后，再上传到正式 PyPI：
 
 ```bash
 python -m twine upload target/wheels/*
+```
+
+确认正式 PyPI 安装：
+
+```bash
+python -m pip install --upgrade numtan
+python -c "import numtan as nt; print(nt.__version__)"
 ```
 
 ## 发布说明检查清单

@@ -1,120 +1,158 @@
 # NumTan
 
-NumTan 鏄竴涓互鈥滃垏绾库€濅负鏍稿績姒傚康鐨勮交閲忕骇鏁板€艰绠楀伐鍏峰簱銆傛牳蹇冪畻娉曚娇鐢?Rust 瀹炵幇锛屽苟閫氳繃 PyO3 瀵煎嚭涓?Python 妯″潡銆傚畠閫傚悎鏁欏銆佸疄楠屻€佸皬鍨嬫暟鍊间换鍔″拰闇€瑕佸彲瑙ｉ噴杩唬杩囩▼鐨勫満鏅€?
-褰撳墠鐗堟湰锛歚0.9.2`銆?
-鑻辨枃鏂囨。锛歚README.md`
+**由 Rust 驱动、面向 Python 的切线主题数值计算工具库。**
 
-## 鍔熻兘姒傝
+NumTan 是一个轻量级数值计算库，适合教学、实验、小型科学计算工作流，以及需要展示迭代过程的场景。它把求导、求根、ODE 求解、积分、统计、插值、多项式、信号处理和可视化数据导出放在同一个简洁 API 下。
 
-- v0.1锛氭暟鍊兼眰瀵间笌鏍囬噺鏂圭▼姹傛牴
-- v0.2锛氬皬鍨嬪悜閲忋€佺煩闃典笌绾挎€х郴缁熷伐鍏?- v0.3锛氬父寰垎鏂圭▼鏄惧紡姝ヨ繘涓庤嚜閫傚簲 RK4
-- v0.4锛歵anh-sinh 绉垎銆佹棤绌峰尯闂寸Н鍒嗕笌姝ｅ垏鐩稿叧鐗规畩鍑芥暟
-- v0.5锛氱敤浜庣粯鍥惧拰鏁欏灞曠ず鐨勫彲瑙嗗寲鏁版嵁瀵煎嚭
-- v0.6锛氭弿杩扮粺璁°€佺浉鍏虫€у拰鍥炲綊宸ュ叿
-- v0.7锛氭彃鍊笺€侀噰鏍风綉鏍煎拰鏈夐檺宸垎
-- v0.8锛氬椤瑰紡璁＄畻宸ュ叿
-- v0.9锛氫俊鍙峰钩婊戙€佸嵎绉€佸綊涓€鍖栧拰宄板€兼娴?
-## 瀹夎
+项目核心使用 Rust 编写，并通过 PyO3 暴露为 Python 模块，因此兼顾运行速度、打包体积和 Python 使用体验。
 
-浠庢湰鍦?wheel 瀹夎锛?
+当前稳定版本：`1.0.0`。
+
+## AI 参与说明
+
+本项目在开发过程中使用了 AI 辅助。代码、文档、发布决策和最终发布产物仍由人类维护者负责审查、测试和确认。
+
+## 为什么选择 NumTan
+
+- **接口小，覆盖广**：常见数值计算任务不必引入庞大的科学计算栈。
+- **适合教学展示**：迭代算法返回 `history`，方便观察、绘图和调试。
+- **Rust 内核，Python 调用**：用户写普通 Python 函数，核心计算由 Rust 完成。
+- **绘图友好**：可视化函数返回普通列表和字典，不绑定特定绘图库。
+- **稳定 v1 API**：`1.x` 系列会保持当前公开 Python API 稳定。
+
+## 安装
+
+从 PyPI 安装稳定版：
+
 ```bash
-python -m pip install target/wheels/numtan-0.9.2-cp313-cp313-win_amd64.whl
+python -m pip install numtan
 ```
 
-寮€鍙戞ā寮忔瀯寤哄苟瀹夎锛?
+升级已有安装：
+
+```bash
+python -m pip install --upgrade numtan
+```
+
+从本地 wheel 安装：
+
+```bash
+python -m pip install target/wheels/numtan-1.0.0-cp313-cp313-win_amd64.whl
+```
+
+从源码开发安装：
+
 ```bash
 python -m pip install maturin
 maturin develop --release
 ```
 
-鏋勫缓鍙戝竷鐢?wheel锛?
+构建发布用 wheel：
+
 ```bash
 maturin build --release --compatibility pypi --auditwheel=repair
 ```
 
-## 蹇€熷紑濮?
+## 快速开始
+
 ```python
+import math
 import numtan as nt
 
 root = nt.newton(lambda x: x * x - 2.0, 1.0)["root"]
 slope = nt.tangent(lambda x: x**3, 2.0)
 area = nt.tanh_sinh(lambda x: x * x, 0.0, 1.0)["value"]
+ode_last = nt.rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.05)[-1]["y"]
 
-print(root, slope, area)
+print(root)
+print(slope)
+print(area)
+print(ode_last, math.e)
 ```
 
-杈撳嚭澶х害涓猴細
+结果大约对应 `sqrt(2)`、`12.0`、`1/3` 和 `e`。
 
-```text
-1.4142135623730951 12.0 0.3333333333333333
-```
+## 功能地图
 
-## 甯哥敤绀轰緥
+| 领域 | 函数 |
+| --- | --- |
+| 求导 | `tangent`, `gradient` |
+| 求根 | `newton`, `halley`, `householder` |
+| 线性代数 | `dot`, `norm`, `add`, `sub`, `scale`, `mat_vec`, `solve` |
+| 优化 | `gradient_descent`, `tangent_minimize`, `stationary_newton`, `gauss_newton` |
+| ODE 求解 | `euler`, `midpoint`, `rk4`, `adaptive_rk4` |
+| 积分 | `tanh_sinh`, `tan_sinh`, `quad_inf` |
+| 三角扩展 | `tanpi`, `tanint`, `atanint`, `complex_tan`, `tan_deg`, `tan_grad` |
+| 可视化数据 | `tangent_lines`, `newton_animation_data`, `ode_direction_field` |
+| 统计 | `mean`, `variance`, `summary`, `covariance`, `correlation`, `linear_regression`, `polynomial_regression` |
+| 插值 | `linspace`, `sample_grid`, `linear_interpolate`, `lagrange_interpolate`, `finite_difference` |
+| 多项式 | `polyval`, `polyder`, `polyint`, `polyadd`, `polymul`, `polyroot` |
+| 信号处理 | `moving_average`, `exponential_smooth`, `convolve`, `normalize`, `find_peaks` |
 
-### 姹傚涓庢眰鏍?
+## 示例
+
+### 带迭代历史的求根
+
 ```python
-nt.tangent(lambda x: x**3, 2.0)
-nt.gradient(lambda v: v[0] ** 2 + v[1] ** 2, [1.0, 2.0])
-nt.newton(lambda x: x * x - 2.0, 1.0)
-nt.halley(lambda x: x**3 - 8.0, 1.0)
-nt.householder(lambda x: x**3 - 8.0, 1.0, 3)
+result = nt.newton(lambda x: x**3 - 2.0 * x - 5.0, 2.0)
+
+print(result["root"])
+print(result["converged"])
+print(result["history"][0])
 ```
 
-### 绾挎€т唬鏁?
-```python
-nt.dot([1.0, 2.0], [3.0, 4.0])
-nt.norm([3.0, 4.0])
-nt.solve([[2.0, 1.0], [1.0, 3.0]], [1.0, 2.0])
-```
-
-### 浼樺寲
+### 优化
 
 ```python
-nt.gradient_descent(lambda v: (v[0] - 2.0) ** 2, [0.0])
-nt.tangent_minimize(lambda x: (x - 3.0) ** 2, 0.0)
-nt.gauss_newton(lambda v: [v[0] - 2.0], [0.0])
+minimum = nt.gradient_descent(
+    lambda v: (v[0] - 2.0) ** 2 + (v[1] + 1.0) ** 2,
+    [0.0, 0.0],
+)
+
+print(minimum["point"])
 ```
 
-### ODE 涓庣Н鍒?
+### 绘图数据
+
 ```python
-nt.rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.05)
-nt.adaptive_rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.2)
-nt.quad_inf(lambda x: __import__("math").exp(-x * x))
+lines = nt.tangent_lines(lambda x: x * x, 0.0, 2.0, [0.5, 1.0, 1.5])
+field = nt.ode_direction_field(lambda t, y: y, (0.0, 1.0), (0.0, 2.0), 8, 8)
 ```
 
-### 缁熻銆佹彃鍊笺€佸椤瑰紡鍜屼俊鍙峰鐞?
-```python
-nt.summary([1.0, 2.0, 3.0])
-nt.linear_interpolate([0.0, 1.0], [0.0, 2.0], 0.25)
-nt.polyval([1.0, 0.0, 1.0], 2.0)
-nt.find_peaks([0.0, 2.0, 1.0, 3.0, 0.0], 1.5)
-```
+返回值都是普通 Python 列表和字典，可直接交给 Matplotlib、Plotly 或 notebook 组件。
 
-## 涓枃鏂囨。
+## 文档
 
-- 鏂囨。鎬荤储寮曪細`docs/INDEX.zh-CN.md`
-- 鑻辨枃鏂囨。鎬荤储寮曪細`docs/INDEX.md`
-- 鑻辨枃 README锛歚README.md`
-- 涓枃浣跨敤鎸囧崡锛歚docs/USAGE.zh-CN.md`
-- 涓枃 API 鍙傝€冿細`docs/API.zh-CN.md`
-- 涓枃鍙戝竷鎸囧崡锛歚docs/RELEASE.zh-CN.md`
-- 鍙繍琛?Python 绀轰緥锛歚examples/python_demo.py`
+- 英文文档总索引：`docs/INDEX.md`
+- 中文文档总索引：`docs/INDEX.zh-CN.md`
+- 使用指南：`docs/USAGE.zh-CN.md`
+- API 参考：`docs/API.zh-CN.md`
+- 英文 README：`README.md`
+- 发布指南：`docs/RELEASE.zh-CN.md`
+- 可运行示例：`examples/python_demo.py`
 
-## 娴嬭瘯
+## 测试
 
-杩愯 Rust 娴嬭瘯锛?
+运行 Rust 测试：
+
 ```bash
 cargo test
 ```
 
-瀹夎鎵╁睍鍚庤繍琛?Python 娴嬭瘯锛?
+安装 Python 扩展后运行检查：
+
 ```bash
 python tests/python_smoke.py
 python tests/api_surface.py
 ```
 
-## 璁捐璇存槑
+## 设计说明
 
-- 鏍稿績绠楁硶浣嶄簬 `src/core`锛屼笉渚濊禆 Python銆?- Python 缁戝畾浣嶄簬 `src/api`锛岃礋璐ｆ妸 Rust 缁撴灉杞崲涓?Python 鐨?`dict`銆乣list`銆乣tuple` 鍜?`float`銆?- 杩唬绠楁硶灏介噺杩斿洖 `history`锛屾柟渚挎暀瀛︺€佺粯鍥惧拰璋冭瘯銆?- Python 鍥炶皟涓殑寮傚父浼氳姝ｅ父浼犲洖 Python锛屼笉浼氬湪 Rust 渚?panic銆?
-## 椤圭洰鐘舵€?
-NumTan `0.9.2` 閫傚悎浣滀负棰勮鐗堟垨鍊欓€夊彂甯冪増鏈€傝嫢瑕佸彂甯冪ǔ瀹氱増 `1.0.0`锛屽缓璁户缁ˉ鍏呮洿澶氭暟鍊艰竟鐣屾祴璇曘€佸骞冲彴 wheel CI 鍜屽畬鏁磋嚜鍔ㄧ敓鎴?API 鏂囨。銆?
+- 核心算法位于 `src/core`，不依赖 Python。
+- Python 绑定位于 `src/api`，负责把 Rust 结果转换为 Python 的 `dict`、`list`、`tuple` 和 `float`。
+- Python 回调中抛出的异常会原样传回 Python。
+- 未定义的数值输入会抛出 `ValueError`，例如对常量向量计算相关系数。
+
+## 项目状态
+
+NumTan `1.0.0` 是首个稳定 API 版本，适合常规 Python 安装、教学材料、本地数值演示和小型低依赖工具。

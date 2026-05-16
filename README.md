@@ -1,30 +1,46 @@
 # NumTan
 
-NumTan is a tangent-centered numerical toolkit implemented in Rust and exported as a Python module with PyO3. It is designed as a compact teaching-friendly numerical library: derivatives, root finding, ODE stepping, quadrature, regression, interpolation, polynomial helpers, signal utilities, and plot-ready visualization data all share one lightweight API.
+**Tangent-centered numerical tools for Python, powered by Rust.**
 
-Current version: `0.9.2`.
+NumTan is a compact numerical toolkit for teaching, experiments, and small scientific workflows. It brings together derivatives, root finding, ODE solvers, quadrature, statistics, interpolation, polynomial helpers, signal utilities, and plot-ready visualization data under one lightweight Python API.
 
-## Features
+The project is built in Rust and exposed to Python with PyO3, so the core algorithms stay fast, dependency-light, and easy to package as wheels.
 
-- v0.1: numerical derivatives and scalar root solvers
-- v0.2: small vector and matrix helpers for multivariate workflows
-- v0.3: explicit ODE steppers and adaptive RK4
-- v0.4: tanh-sinh style quadrature and tangent trigonometric extras
-- v0.5: visualization data exporters
-- v0.6: descriptive statistics and regression helpers
-- v0.7: interpolation and finite-difference grids
-- v0.8: polynomial tools
-- v0.9: signal smoothing, convolution, and peak detection
+Current stable version: `1.0.0`.
+
+## AI Assistance Disclosure
+
+This project was developed with AI assistance. Human maintainers remain responsible for reviewing, testing, and accepting code, documentation, release decisions, and published artifacts.
+
+## Why NumTan
+
+- **Small surface, broad coverage**: common numerical routines without pulling in a large scientific stack.
+- **Teaching-friendly results**: iterative methods expose `history` data for plotting and inspection.
+- **Rust core, Python ergonomics**: call plain Python functions while the numerical kernels live in Rust.
+- **Plot-ready by design**: visualization helpers return regular dictionaries and lists, not framework-specific objects.
+- **Stable v1 API**: the public Python API is frozen for the `1.x` series.
 
 ## Installation
 
-Install from a local wheel:
+Install the stable release from PyPI:
 
 ```bash
-python -m pip install target/wheels/numtan-0.9.2-cp313-cp313-win_amd64.whl
+python -m pip install numtan
 ```
 
-Build and install in editable development mode:
+Upgrade an existing installation:
+
+```bash
+python -m pip install --upgrade numtan
+```
+
+Install a local wheel:
+
+```bash
+python -m pip install target/wheels/numtan-1.0.0-cp313-cp313-win_amd64.whl
+```
+
+Build and install from this repository for development:
 
 ```bash
 python -m pip install maturin
@@ -40,75 +56,80 @@ maturin build --release --compatibility pypi --auditwheel=repair
 ## Quick Start
 
 ```python
+import math
 import numtan as nt
 
 root = nt.newton(lambda x: x * x - 2.0, 1.0)["root"]
 slope = nt.tangent(lambda x: x**3, 2.0)
 area = nt.tanh_sinh(lambda x: x * x, 0.0, 1.0)["value"]
+ode_last = nt.rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.05)[-1]["y"]
 
-print(root, slope, area)
+print(root)
+print(slope)
+print(area)
+print(ode_last, math.e)
 ```
 
-Expected output is approximately:
+Expected values are approximately `sqrt(2)`, `12.0`, `1/3`, and `e`.
 
-```text
-1.4142135623730951 12.0 0.3333333333333333
-```
+## Feature Map
 
-## API Overview
+| Area | Functions |
+| --- | --- |
+| Derivatives | `tangent`, `gradient` |
+| Root finding | `newton`, `halley`, `householder` |
+| Linear algebra | `dot`, `norm`, `add`, `sub`, `scale`, `mat_vec`, `solve` |
+| Optimization | `gradient_descent`, `tangent_minimize`, `stationary_newton`, `gauss_newton` |
+| ODE solvers | `euler`, `midpoint`, `rk4`, `adaptive_rk4` |
+| Integration | `tanh_sinh`, `tan_sinh`, `quad_inf` |
+| Trigonometric extras | `tanpi`, `tanint`, `atanint`, `complex_tan`, `tan_deg`, `tan_grad` |
+| Visualization data | `tangent_lines`, `newton_animation_data`, `ode_direction_field` |
+| Statistics | `mean`, `variance`, `summary`, `covariance`, `correlation`, `linear_regression`, `polynomial_regression` |
+| Interpolation | `linspace`, `sample_grid`, `linear_interpolate`, `lagrange_interpolate`, `finite_difference` |
+| Polynomials | `polyval`, `polyder`, `polyint`, `polyadd`, `polymul`, `polyroot` |
+| Signals | `moving_average`, `exponential_smooth`, `convolve`, `normalize`, `find_peaks` |
 
-### Derivatives and Roots
+## Examples
+
+### Roots With Iteration History
 
 ```python
-nt.tangent(lambda x: x**3, 2.0)
-nt.gradient(lambda v: v[0] ** 2 + v[1] ** 2, [1.0, 2.0])
-nt.newton(lambda x: x * x - 2.0, 1.0)
-nt.halley(lambda x: x**3 - 8.0, 1.0)
-nt.householder(lambda x: x**3 - 8.0, 1.0, 3)
-```
+result = nt.newton(lambda x: x**3 - 2.0 * x - 5.0, 2.0)
 
-### Linear Algebra
-
-```python
-nt.dot([1.0, 2.0], [3.0, 4.0])
-nt.norm([3.0, 4.0])
-nt.solve([[2.0, 1.0], [1.0, 3.0]], [1.0, 2.0])
+print(result["root"])
+print(result["converged"])
+print(result["history"][0])
 ```
 
 ### Optimization
 
 ```python
-nt.gradient_descent(lambda v: (v[0] - 2.0) ** 2, [0.0])
-nt.tangent_minimize(lambda x: (x - 3.0) ** 2, 0.0)
-nt.gauss_newton(lambda v: [v[0] - 2.0], [0.0])
+minimum = nt.gradient_descent(
+    lambda v: (v[0] - 2.0) ** 2 + (v[1] + 1.0) ** 2,
+    [0.0, 0.0],
+)
+
+print(minimum["point"])
 ```
 
-### ODE and Integration
+### Data for Plotting
 
 ```python
-nt.rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.05)
-nt.adaptive_rk4(lambda t, y: y, 1.0, 0.0, 1.0, 0.2)
-nt.quad_inf(lambda x: __import__("math").exp(-x * x))
+lines = nt.tangent_lines(lambda x: x * x, 0.0, 2.0, [0.5, 1.0, 1.5])
+field = nt.ode_direction_field(lambda t, y: y, (0.0, 1.0), (0.0, 2.0), 8, 8)
 ```
 
-### Statistics, Interpolation, Polynomials, and Signals
-
-```python
-nt.summary([1.0, 2.0, 3.0])
-nt.linear_interpolate([0.0, 1.0], [0.0, 2.0], 0.25)
-nt.polyval([1.0, 0.0, 1.0], 2.0)
-nt.find_peaks([0.0, 2.0, 1.0, 3.0, 0.0], 1.5)
-```
+The returned values are plain Python lists and dictionaries, ready for Matplotlib, Plotly, or a notebook widget.
 
 ## Documentation
 
-- Documentation index: `docs/INDEX.md`
+- English documentation index: `docs/INDEX.md`
 - Chinese documentation index: `docs/INDEX.zh-CN.md`
-- Chinese README: `README.zh-CN.md`
 - User guide: `docs/USAGE.md`
 - API reference: `docs/API.md`
-- Release checklist: `docs/RELEASE.md`
-- Runnable Python demo: `examples/python_demo.py`
+- Chinese README: `README.zh-CN.md`
+- Release guide: `docs/RELEASE.md`
+- Runnable demo: `examples/python_demo.py`
 
 ## Testing
 
@@ -118,7 +139,7 @@ Run Rust tests:
 cargo test
 ```
 
-Run Python smoke tests after installing the extension:
+After installing the Python extension, run the Python checks:
 
 ```bash
 python tests/python_smoke.py
@@ -127,11 +148,11 @@ python tests/api_surface.py
 
 ## Design Notes
 
-- Core algorithms live in `src/core` and contain no Python-specific code.
-- Python bindings live in `src/api` and convert Rust results into Python dictionaries, lists, tuples, and floats.
-- Iterative algorithms return history data when useful for teaching, plotting, and debugging.
-- Python callback exceptions are propagated back to Python instead of panicking in Rust.
+- Core algorithms live in `src/core` and do not depend on Python.
+- Python bindings live in `src/api` and convert Rust results into Python `dict`, `list`, `tuple`, and `float` values.
+- Callback exceptions raised in Python are propagated back to Python.
+- Undefined numerical inputs, such as correlation with a constant vector, raise `ValueError`.
 
-## Project Status
+## Status
 
-NumTan `0.9.2` is suitable as a preview or release-candidate package. Before a stable `1.0.0`, the recommended next steps are broader numerical edge-case testing, multi-platform CI wheel publishing, and full generated API documentation.
+NumTan `1.0.0` is the first stable API release. It is ready for normal Python installation, local teaching material, numerical demos, and small dependency-conscious tools.

@@ -1,19 +1,58 @@
-# NumTan API 鍙傝€?
-鏈枃妗ｅ垪鍑?NumTan `0.9.2` 瀵煎嚭鐨?Python 鍏叡鍑芥暟銆?
-## 姹傚 API
+# NumTan API 参考
+
+本文档覆盖 NumTan `1.0.0` 导出的 Python 公共 API。
+
+NumTan 在开发过程中使用了 AI 辅助。最终 API、文档和发布版本由人类维护者审查并确认。
+
+从 PyPI 安装：
+
+```bash
+python -m pip install numtan
+```
+
+推荐导入方式：
+
+```python
+import numtan as nt
+```
+
+## 版本
+
+- `__version__ -> str`
+
+## 常见返回结构
+
+求根器返回字典，包含：
+
+- `root`：最终根估计
+- `converged`：是否收敛
+- `iterations`：迭代次数
+- `history`：逐步迭代数据
+
+优化器返回字典，包含：
+
+- `point`：最终点
+- `value`：最终目标函数值
+- `converged`：是否收敛
+- `iterations`：迭代次数
+- `history`：逐步迭代数据
+
+ODE 求解器返回由字典组成的列表，每个字典包含 `t` 和 `y`。
+
+积分函数返回字典，包含 `value`、`error` 和 `levels`。
+
+## 求导
 
 - `tangent(function, x, method="central") -> float`
 - `gradient(function, point) -> list[float]`
 
-## 姹傛牴 API
+## 求根
 
 - `newton(function, x0, tol=1e-10, max_iter=50) -> dict`
 - `halley(function, x0, tol=1e-10, max_iter=50) -> dict`
 - `householder(function, x0, order=3, tol=1e-10, max_iter=50) -> dict`
 
-姹傛牴缁撴灉瀛楀吀鍖呭惈锛?
-- `root`锛氭渶缁堟牴浼拌鍊?- `converged`锛氭槸鍚︽敹鏁?- `iterations`锛氳凯浠ｆ鏁?- `history`锛氭瘡涓€姝ヨ凯浠ｆ暟鎹?
-## 绾挎€т唬鏁?API
+## 线性代数
 
 - `dot(left, right) -> float`
 - `norm(vector) -> float`
@@ -23,32 +62,31 @@
 - `mat_vec(matrix, vector) -> list[float]`
 - `solve(matrix, rhs) -> list[float]`
 
-## 浼樺寲 API
+向量使用 Python 列表。矩阵使用行主序二维列表。
+
+## 优化
 
 - `gradient_descent(function, start, step_size=0.01, tol=1e-8, max_iter=1000) -> dict`
 - `tangent_minimize(function, start, step_size=0.01, tol=1e-8, max_iter=1000) -> dict`
 - `stationary_newton(function, start, tol=1e-8, max_iter=100) -> dict`
 - `gauss_newton(function, start, tol=1e-8, max_iter=100) -> dict`
 
-浼樺寲缁撴灉瀛楀吀鍖呭惈锛?
-- `point`锛氭渶缁堢偣
-- `value`锛氭渶缁堢洰鏍囧嚱鏁板€?- `converged`锛氭槸鍚︽敹鏁?- `iterations`锛氳凯浠ｆ鏁?- `history`锛氭瘡涓€姝ヨ凯浠ｆ暟鎹?
-## ODE API
+## ODE 求解
 
 - `euler(function, y0, t0, t1, step) -> list[dict]`
 - `midpoint(function, y0, t0, t1, step) -> list[dict]`
 - `rk4(function, y0, t0, t1, step) -> list[dict]`
 - `adaptive_rk4(function, y0, t0, t1, initial_step, tol=1e-8) -> list[dict]`
 
-ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
-## 绉垎 API
+ODE 回调函数接收 `(t, y)`。
+
+## 积分
 
 - `tanh_sinh(function, a, b, tol=1e-10, max_levels=12) -> dict`
 - `tan_sinh(function, a=0.0, tol=1e-10, max_levels=12) -> dict`
 - `quad_inf(function, tol=1e-10, max_levels=12) -> dict`
 
-绉垎缁撴灉瀛楀吀鍖呭惈 `value`銆乣error` 鍜?`levels`銆?
-## 涓夎鎵╁睍 API
+## 三角扩展
 
 - `tanpi(x) -> float`
 - `tanint(x) -> float`
@@ -57,15 +95,17 @@ ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
 - `tan_deg(x) -> float`
 - `tan_grad(x) -> float`
 
-## 鍙鍖?API
+## 可视化数据
 
 - `tangent_lines(function, x_start, x_end, centers) -> list[dict]`
 - `newton_animation_data(function, x0, tol=1e-10, max_iter=50) -> list[dict]`
 - `ode_direction_field(function, x_range, y_range, x_count, y_count) -> list[dict]`
 
-绾挎瀛楀吀鍖呭惈 `x_start`銆乣y_start`銆乣x_end`銆乣y_end`銆乣center` 鍜?`slope`銆?
-鏂瑰悜鍦哄瓧鍏稿寘鍚?`x`銆乣y`銆乣dx` 鍜?`dy`銆?
-## 缁熻 API
+切线段字典包含 `x_start`、`y_start`、`x_end`、`y_end`、`center` 和 `slope`。
+
+方向场字典包含 `x`、`y`、`dx` 和 `dy`。
+
+## 统计
 
 - `mean(values) -> float`
 - `variance(values, sample=False) -> float`
@@ -75,7 +115,11 @@ ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
 - `linear_regression(x, y) -> dict`
 - `polynomial_regression(x, y, degree) -> list[float]`
 
-## 鎻掑€?API
+`summary` 返回 `count`、`mean`、`variance`、`std_dev`、`min` 和 `max`。
+
+`linear_regression` 返回 `slope`、`intercept` 和 `r2`。
+
+## 插值与网格
 
 - `linspace(start, end, count) -> list[float]`
 - `sample_grid(function, start, end, count) -> list[dict]`
@@ -83,7 +127,7 @@ ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
 - `lagrange_interpolate(x, y, query) -> float`
 - `finite_difference(values, spacing) -> list[float]`
 
-## 澶氶」寮?API
+## 多项式
 
 - `polyval(coefficients, x) -> float`
 - `polyder(coefficients) -> list[float]`
@@ -92,7 +136,9 @@ ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
 - `polymul(left, right) -> list[float]`
 - `polyroot(coefficients, guess, tol=1e-10, max_iter=50) -> float`
 
-## 淇″彿澶勭悊 API
+多项式系数按升幂排列。
+
+## 信号处理
 
 - `moving_average(values, window) -> list[float]`
 - `exponential_smooth(values, alpha) -> list[float]`
@@ -100,4 +146,9 @@ ODE 杞ㄨ抗瀛楀吀鍖呭惈 `t` 鍜?`y`銆?
 - `normalize(values) -> list[float]`
 - `find_peaks(values, threshold) -> list[dict]`
 
-宄板€煎瓧鍏稿寘鍚?`index` 鍜?`value`銆?
+峰值字典包含 `index` 和 `value`。
+
+## 错误语义
+
+- 参数形状错误、空输入、奇异线性系统和未定义统计操作会抛出 `ValueError`。
+- 用户提供的 Python 回调中抛出的异常会原样传播，不会变成 Rust panic。

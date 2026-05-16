@@ -52,6 +52,12 @@ fn linalg_solves_small_system() {
 }
 
 #[test]
+fn statistics_reject_undefined_constant_vector_operations() {
+    assert!(numtan::core::stats::correlation(&[1.0, 1.0], &[2.0, 3.0]).is_err());
+    assert!(numtan::core::stats::linear_regression(&[1.0, 1.0], &[2.0, 3.0]).is_err());
+}
+
+#[test]
 fn optimizers_reach_simple_minimum() {
     let scalar = |x: f64| (x - 3.0).powi(2);
     let vector = |point: &[f64]| (point[0] - 2.0).powi(2) + (point[1] + 1.0).powi(2);
