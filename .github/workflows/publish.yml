@@ -2,8 +2,12 @@ name: publish
 
 on:
   push:
+    branches:
+      - main
     tags:
       - "v*"
+    paths:
+      - ".github/release-trigger/v1.0.0"
   workflow_dispatch:
 
 permissions:
@@ -82,7 +86,6 @@ jobs:
   create-github-release:
     name: Create GitHub Release
     needs: [build-wheels, build-sdist]
-    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -96,5 +99,7 @@ jobs:
       - name: Create release and upload distributions
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v1.0.0
+          name: NumTan v1.0.0
           files: dist/*
           generate_release_notes: true
